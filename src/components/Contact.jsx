@@ -32,7 +32,7 @@ export default function Contact() {
             {/* Social Links */}
             <div className="contact-links">
               <a 
-                href="https://linkedin.com/in/subashree-s" 
+                href="https://www.linkedin.com/in/subashree-s-013955281/" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="contact-link linkedin-link"
