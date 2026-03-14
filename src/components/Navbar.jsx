@@ -1,7 +1,15 @@
+import { Code2 } from 'lucide-react'
+
 export default function Navbar() {
   return (
     <nav className="nav">
-      <div className="nav-logo">SS/</div>
+      <a href="#top" className="nav-logo">
+        <div className="logo-container">
+          <div className="logo-bg"></div>
+          <Code2 size={24} strokeWidth={2.5} className="logo-icon" />
+          <span className="logo-text">Subashree</span>
+        </div>
+      </a>
       <ul className="nav-links">
         <li><a href="#skills">Skills</a></li>
         <li><a href="#experience">Experience</a></li>

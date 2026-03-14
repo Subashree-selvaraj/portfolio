@@ -107,13 +107,67 @@ body::before {
   to { transform: none; opacity: 1; }
 }
 .nav-logo {
+  text-decoration: none;
+  cursor: none;
+  transition: transform 0.3s;
+}
+.nav-logo:hover {
+  transform: translateY(-2px);
+}
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  position: relative;
+}
+.logo-bg {
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(34, 211, 238, 0.2));
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 10px;
+  backdrop-filter: blur(20px);
+  animation: logoPulse 3s ease-in-out infinite;
+}
+@keyframes logoPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(124, 58, 237, 0.4); }
+  50% { box-shadow: 0 0 35px rgba(34, 211, 238, 0.6); }
+}
+.logo-icon {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(135deg, #7c3aed, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 20px rgba(124, 58, 237, 0.5));
+  animation: logoRotate 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+@keyframes logoRotate {
+  from { transform: rotateY(0deg) scale(0.8); opacity: 0; }
+  to { transform: rotateY(360deg) scale(1); opacity: 1; }
+}
+.nav-logo:hover .logo-icon {
+  animation: logoFloat 0.8s ease-in-out infinite;
+}
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0px) rotateZ(0deg); }
+  50% { transform: translateY(-4px) rotateZ(5deg); }
+}
+.logo-text {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
-  font-size: 1.35rem;
+  font-size: 1.1rem;
   background: linear-gradient(135deg, var(--a2), var(--a1));
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
-  cursor: none;
+  letter-spacing: -0.5px;
+  transition: filter 0.3s;
+}
+.nav-logo:hover .logo-text {
+  filter: brightness(1.3);
 }
 .nav-links {
   display: flex;
@@ -417,6 +471,53 @@ body::before {
   box-shadow: 0 10px 30px rgba(6, 182, 212, 0.2);
 }
 .btn-o:active {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn-resume {
+  padding: 0.85rem 2rem;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(124, 58, 237, 0.15));
+  border: 1.5px solid rgba(34, 211, 238, 0.4);
+  color: var(--a2);
+  border-radius: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  cursor: none;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.btn-resume::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.3), transparent);
+  transform: translateX(-100%);
+  animation: btn-shimmer-3 3.5s infinite;
+}
+@keyframes btn-shimmer-3 {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.btn-resume:hover {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.25), rgba(124, 58, 237, 0.25));
+  border-color: var(--a2);
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(34, 211, 238, 0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.btn-resume:hover svg {
+  animation: downloadBounce 0.6s ease-in-out infinite;
+}
+@keyframes downloadBounce {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(3px); }
+}
+.btn-resume:active {
   transform: translateY(-2px) scale(1.02);
 }
 
