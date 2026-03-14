@@ -6,9 +6,10 @@ export default function useScrollReveal() {
     const els = document.querySelectorAll('.r')
     const obs = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry, i) => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setTimeout(() => entry.target.classList.add('vis'), i * 70)
+            entry.target.classList.add('vis')
+            obs.unobserve(entry.target)
           }
         })
       },
@@ -16,7 +17,7 @@ export default function useScrollReveal() {
     )
     els.forEach((el) => obs.observe(el))
 
-    // Handle new scroll-reveal classes
+    // Handle new scroll-reveal classes - batch unobserve to reduce overhead
     const scrollRevealEls = document.querySelectorAll('.scroll-reveal, .scroll-reveal-left, .scroll-reveal-right, .scroll-reveal-scale')
     const scrollRevealObs = new IntersectionObserver(
       (entries) => {
@@ -27,7 +28,7 @@ export default function useScrollReveal() {
           }
         })
       },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      { threshold: 0.1, rootMargin: '0px 0px -30px 0px' }
     )
     scrollRevealEls.forEach((el) => scrollRevealObs.observe(el))
 

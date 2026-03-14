@@ -8,16 +8,16 @@ export default function ThreeBackground() {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true })
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, precision: 'lowp' })
+    renderer.setPixelRatio(window.devicePixelRatio > 1 ? 1.5 : 1)
     renderer.setSize(window.innerWidth, window.innerHeight)
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100)
     camera.position.z = 30
 
-    // Particles
-    const N = 180
+    // Reduced particle count for better performance
+    const N = 80
     const positions = new Float32Array(N * 3)
     const colors = new Float32Array(N * 3)
     const vels = []
@@ -46,18 +46,19 @@ export default function ThreeBackground() {
     const pts = new THREE.Points(geo, mat)
     scene.add(pts)
 
-    // Line connections
+    // Optimize line connections - reduced distance threshold
     const lineGeo = new THREE.BufferGeometry()
-    const linePositions = new Float32Array(N * N * 6)
+    const maxLines = N * 6
+    const linePositions = new Float32Array(maxLines * 3)
     lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3))
     const lineSegments = new THREE.LineSegments(lineGeo, new THREE.LineBasicMaterial({ color: 0x7c3aed, transparent: true, opacity: 0.06 }))
     scene.add(lineSegments)
 
-    // Torus rings
+    // Torus rings - reduced opacity
     const rings = []
     ;[10, 16, 22].forEach((r, i) => {
       const tg = new THREE.TorusGeometry(r, 0.03, 8, 80)
-      const tm = new THREE.MeshBasicMaterial({ color: [0x7c3aed, 0x06b6d4, 0xf59e0b][i], transparent: true, opacity: 0.12 })
+      const tm = new THREE.MeshBasicMaterial({ color: [0x7c3aed, 0x06b6d4, 0xf59e0b][i], transparent: true, opacity: 0.08 })
       const t = new THREE.Mesh(tg, tm)
       t.rotation.x = Math.random() * Math.PI
       t.rotation.y = Math.random() * Math.PI
@@ -66,11 +67,16 @@ export default function ThreeBackground() {
     })
 
     let mouse3x = 0, mouse3y = 0
+    let lastMouseTime = 0
     const onMouseMove = (e) => {
-      mouse3x = (e.clientX / window.innerWidth - 0.5) * 2
-      mouse3y = -(e.clientY / window.innerHeight - 0.5) * 2
+      const now = Date.now()
+      if (now - lastMouseTime > 16) { // ~60fps throttle
+        mouse3x = (e.clientX / window.innerWidth - 0.5) * 2
+        mouse3y = -(e.clientY / window.innerHeight - 0.5) * 2
+        lastMouseTime = now
+      }
     }
-    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mousemove', onMouseMove, { passive: true })
 
     const onResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight
@@ -79,12 +85,22 @@ export default function ThreeBackground() {
     }
     window.addEventListener('resize', onResize)
 
+    // Pause rendering when tab is not focused for performance
+    let isAnimating = true
+    const onVisibilityChange = () => {
+      isAnimating = !document.hidden
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
     let animId
     function animate() {
       animId = requestAnimationFrame(animate)
+      if (!isAnimating) return // Skip rendering when tab is hidden
+
       const pos2 = geo.attributes.position.array
       let lineIdx = 0
       const lp = lineGeo.attributes.position.array
+      const maxDistance = 6.5 // Reduced from 8 to skip more connections
 
       for (let i = 0; i < N; i++) {
         pos2[i * 3] += vels[i].vx
@@ -93,12 +109,14 @@ export default function ThreeBackground() {
         if (Math.abs(pos2[i * 3]) > 30) vels[i].vx *= -1
         if (Math.abs(pos2[i * 3 + 1]) > 20) vels[i].vy *= -1
         if (Math.abs(pos2[i * 3 + 2]) > 10) vels[i].vz *= -1
-        for (let j = i + 1; j < N; j++) {
+        
+        // Only check nearby particles instead of all
+        for (let j = i + 1; j < Math.min(N, i + 20); j++) {
           const dx = pos2[i * 3] - pos2[j * 3]
           const dy = pos2[i * 3 + 1] - pos2[j * 3 + 1]
           const dz = pos2[i * 3 + 2] - pos2[j * 3 + 2]
           const d = Math.sqrt(dx * dx + dy * dy + dz * dz)
-          if (d < 8 && lineIdx < N * N * 6 - 6) {
+          if (d < maxDistance && lineIdx < maxLines - 6) {
             lp[lineIdx++] = pos2[i * 3]; lp[lineIdx++] = pos2[i * 3 + 1]; lp[lineIdx++] = pos2[i * 3 + 2]
             lp[lineIdx++] = pos2[j * 3]; lp[lineIdx++] = pos2[j * 3 + 1]; lp[lineIdx++] = pos2[j * 3 + 2]
           }
@@ -109,12 +127,12 @@ export default function ThreeBackground() {
       lineGeo.setDrawRange(0, lineIdx / 3)
 
       rings.forEach((r, i) => {
-        r.rotation.x += 0.0006 * (i + 1)
-        r.rotation.y += 0.0008 * (i + 1)
+        r.rotation.x += 0.0002 * (i + 1)
+        r.rotation.y += 0.0003 * (i + 1)
       })
 
-      camera.position.x += (mouse3x * 3 - camera.position.x) * 0.02
-      camera.position.y += (mouse3y * 2 - camera.position.y) * 0.02
+      camera.position.x += (mouse3x * 3 - camera.position.x) * 0.015
+      camera.position.y += (mouse3y * 2 - camera.position.y) * 0.015
       camera.lookAt(scene.position)
       renderer.render(scene, camera)
     }
@@ -123,8 +141,17 @@ export default function ThreeBackground() {
     return () => {
       cancelAnimationFrame(animId)
       document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
       window.removeEventListener('resize', onResize)
       renderer.dispose()
+      geo.dispose()
+      mat.dispose()
+      lineGeo.dispose()
+      lineSegments.material.dispose()
+      rings.forEach(r => {
+        r.geometry.dispose()
+        r.material.dispose()
+      })
     }
   }, [])
 
