@@ -1,0 +1,46 @@
+# Dependencies
+node_modules
+package-lock.json
+yarn.lock
+
+# Production
+dist
+build
+.next
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+*.log
+
+# Testing
+coverage
+*.lcov
+.nyc_output
+
+# Misc
+.cache
+.parcel-cache
+tmp
+temp
+
+# Documentation & Reference Files
+*.txt
+CHANGES_SUMMARY.md
+HERO_*.md
+CARD_*.md
+PROFESSIONAL_*.md
+DESCRIPTIONS_*.md
+PORTFOLIO_*.md
+SCROLL_*.md
+ABOUT_*.md
+
