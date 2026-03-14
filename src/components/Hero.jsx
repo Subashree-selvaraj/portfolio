@@ -1,5 +1,4 @@
 import HeroCard from './HeroCard'
-import { Download } from 'lucide-react'
 
 export default function Hero() {
   return (
@@ -23,9 +22,8 @@ export default function Hero() {
           <div className="hero-btns">
             <a href="#projects" className="btn-p">View Projects ↗</a>
             <a href="#contact" className="btn-o">Get in Touch</a>
-            <a href="/resume.pdf" download className="btn-resume">
-              <Download size={18} />
-              Download Resume
+            <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="btn-resume">
+              View Resume
             </a>
           </div>
         </div>
